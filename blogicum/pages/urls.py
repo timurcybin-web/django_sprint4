@@ -1,10 +1,12 @@
+# Пути, прописанные с помощью view-классов
+
 from django.urls import path
 
-from .views import AboutPageView, RulesPageView
+from . import views
 
 app_name = 'pages'
 
 urlpatterns = [
-    path('about/', AboutPageView.as_view(), name='about'),
-    path('rules/', RulesPageView.as_view(), name='rules')
+    path('about/', views.About.as_view(), name='about'),
+    path('rules/', views.Rules.as_view(), name='rules'),
 ]

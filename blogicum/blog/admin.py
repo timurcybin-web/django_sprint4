@@ -1,62 +1,61 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import Group
-from django.utils.safestring import mark_safe
 
-from .models import Category, Comment, Location, Post, User
+# Register your models here.
+from .models import Category, Location, Post, Comment
 
-
-"""Удаляем стандартную регистрацию пользователей и групп"""
-
-admin.site.unregister(User)
-admin.site.unregister(Group)
+admin.site.empty_value_display = 'Не задано'
 
 
-@admin.register(User)
-class UserAdmin(BaseUserAdmin):
-    list_display = BaseUserAdmin.list_display + ('posts_count',)
-
-    @admin.display(description='Кол-во постов у пользователя')
-    def posts_count(self, obj):
-        return obj.posts.count()
-
-
-@admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-        'author',
         'pub_date',
+        'author',
+        'location',
+        'category',
         'is_published',
-        'image_post'
+        'created_at'
     )
-    search_fields = ('title', 'text')
-    list_filter = ('is_published', 'category', 'location')
-
-    @admin.display(description='Картинка')
-    def image_post(self, obj):
-        if obj.image:
-            return mark_safe(
-                f'<img src="{obj.image.url}" width="80" height="60">'
-            )
-        return 'нет картинки'
-
-
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'is_published')
+    list_editable = (
+        'is_published',
+        'category',
+        'location'
+    )
     search_fields = ('title',)
-    list_filter = ('is_published',)
+    list_filter = ('category', 'author', 'created_at',)
+    list_display_links = ('title',)
 
 
-@admin.register(Location)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'is_published'
+    )
+    list_editable = ('is_published',)
+    search_fields = ('title',)
+    list_filter = ('title',)
+    list_display_links = ('title',)
+
+
 class LocationAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = (
+        'name',
+        'is_published'
+    )
+    list_editable = ('is_published',)
     search_fields = ('name',)
+    list_filter = ('name', 'created_at',)
+    list_display_links = ('name',)
 
 
-@admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('author', 'post', 'created_at')
-    search_fields = ('text',)
-    list_filter = ('created_at',)
+    list_display = ('text', 'author', 'post',)
+    list_editable = ('author', 'post', )
+    search_fields = ('author',)
+    list_display_links = ('text',)
+
+
+admin.site.register(Post, PostAdmin)
+admin.site.register(Location, LocationAdmin)
+admin.site.register(Category, CategoryAdmin)
+admin.site.register(Comment, CommentAdmin)
